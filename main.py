@@ -1,18 +1,27 @@
 from openai import OpenAI
+import json
 
-# Connect Python to your local LM Studio server
+# Connect Python to local LM Studio server
 client = OpenAI(
     api_key="lm-studio",
     base_url="http://127.0.0.1:1234/v1"
 )
 
-# Temporary conversation memory
-conversation = []
+# Memory file
+MEMORY_FILE = "memory.json"
+
+# Load previous memory
+try:
+    with open(MEMORY_FILE, "r") as file:
+        conversation = json.load(file)
+
+except FileNotFoundError:
+    conversation = []
 
 # Infinite chat loop
 while True:
 
-    # Take user input
+    # User input
     user_input = input("You: ")
 
     # Exit condition
@@ -20,7 +29,7 @@ while True:
         print("Albedo: See you soon!")
         break
 
-    # Store user message in memory
+    # Store user message
     conversation.append(
         {
             "role": "user",
@@ -28,22 +37,26 @@ while True:
         }
     )
 
-    # Send full conversation to AI
+    # Generate AI response
     response = client.chat.completions.create(
         model="qwen3.5-9b-glm5.1-distill-v1-i1",
         messages=conversation
     )
 
-    # Extract AI response text
+    # Extract AI text
     ai_reply = response.choices[0].message.content
 
-    # Print AI response
+    # Print response
     print("Albedo:", ai_reply)
 
-    # Store AI response in memory
+    # Store AI response
     conversation.append(
         {
             "role": "assistant",
             "content": ai_reply
         }
     )
+
+    # Save memory
+    with open(MEMORY_FILE, "w") as file:
+        json.dump(conversation, file, indent=4)
