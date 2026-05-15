@@ -9,6 +9,7 @@ client = OpenAI(
 
 # Memory file
 MEMORY_FILE = "memory.json"
+MAX_CONTEXT = 10
 
 # Load previous memory
 try:
@@ -40,7 +41,7 @@ while True:
     # Generate AI response
     response = client.chat.completions.create(
         model="qwen3.5-9b-glm5.1-distill-v1-i1",
-        messages=conversation
+        messages=conversation[-MAX_CONTEXT:]
     )
 
     # Extract AI text
